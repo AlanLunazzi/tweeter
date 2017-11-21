@@ -1,7 +1,12 @@
 package service
 
-var Tweet string = ""
+var tweet string = ""
 
 func PublishTweet(tw string) {
-	Tweet = tw
+	tweet = tw
+
+}
+
+func GetTweet() string {
+	return tweet
 }
