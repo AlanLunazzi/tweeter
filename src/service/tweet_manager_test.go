@@ -15,4 +15,10 @@ func TestPublishedTweetIsSaved(t *testing.T) {
 	if service.GetTweet() != tweet {
 		t.Error("Expected tweet is", tweet)
 	}
+
+	service.CleanTweet()
+
+	if service.GetTweet() != "" {
+		t.Error("Expected tweet is empty, actual tweet is", service.GetTweet())
+	}
 }

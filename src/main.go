@@ -33,5 +33,16 @@ func main() {
 		},
 	})
 
+	shell.AddCmd(&ishell.Cmd{
+		Name: "cleanTweet",
+		Help: "Cleans the last tweet",
+		Func: func(c *ishell.Context) {
+			defer c.ShowPrompt(true)
+			service.CleanTweet()
+
+			c.Println("Ultimo tweet eliminado")
+		},
+	})
+
 	shell.Run()
 }

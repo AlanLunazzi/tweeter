@@ -11,3 +11,8 @@ func PublishTweet(tw string) {
 func GetTweet() string {
 	return tweet
 }
+
+// CleanTweet - Borra el ultimo tweet reemplazandolo por un texto vacio
+func CleanTweet() {
+	tweet = ""
+}
