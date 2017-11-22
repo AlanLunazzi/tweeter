@@ -59,3 +59,16 @@ func CleanTweet() {
 		tweets = nil
 	}
 }
+
+// CountTweetsByUser - Contar tweets por usuario
+func CountTweetsByUser(user string) int {
+	count := 0
+	if len(tweets) > 0 {
+		for i := 0; i < len(tweets); i++ {
+			if tweets[i].User == user {
+				count++
+			}
+		}
+	}
+	return count
+}
