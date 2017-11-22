@@ -37,6 +37,7 @@ func main() {
 			} else {
 				c.Println(tweet.User)
 				c.Println(tweet.Text)
+				c.Println(tweet.Date)
 			}
 
 		},
