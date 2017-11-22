@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strconv"
+
 	"github.com/abiosoft/ishell"
 	"github.com/tweeter/src/domain"
 	"github.com/tweeter/src/service"
@@ -14,17 +16,19 @@ func main() {
 		Name: "publishTweet",
 		Help: "Publishes a tweet",
 		Func: func(c *ishell.Context) {
+			var err error
+			var id int
 			defer c.ShowPrompt(true)
 			c.Print("Enter your username: ")
 			usr := c.ReadLine()
 			c.Print("Write your tweet: ")
 			txt := c.ReadLine()
 			tweet := domain.NewTweet(usr, txt)
-			err := service.PublishTweet(tweet)
+			id, err = service.PublishTweet(tweet)
 			if err != nil {
 				c.Println("Error->", err)
 			} else {
-				c.Println("Tweet Sent")
+				c.Println("Tweet Sent with id ", id)
 			}
 			return
 		},
@@ -43,7 +47,30 @@ func main() {
 				c.Println(tweet.Text)
 				c.Println(tweet.Date)
 			}
+		},
+	})
 
+	shell.AddCmd(&ishell.Cmd{
+		Name: "showTweetByID",
+		Help: "Shows a tweet by its ID",
+		Func: func(c *ishell.Context) {
+			defer c.ShowPrompt(true)
+			c.Print("Insert ID: ")
+			var id int
+			var err error
+			id, err = strconv.Atoi(c.ReadLine())
+			if err == nil {
+				tweet := service.GetTweetByID(id)
+				if tweet == nil {
+					c.Println("No tweet with matching ID")
+				} else {
+					c.Println(tweet.User)
+					c.Println(tweet.Text)
+					c.Println(tweet.Date)
+				}
+			} else {
+				c.Println("Invalid ID format")
+			}
 		},
 	})
 
@@ -57,7 +84,7 @@ func main() {
 				c.Println("No hay ningun tweet")
 			} else {
 				for i := 0; i < len(tweets); i++ {
-					c.Println("Tweet ", i)
+					c.Println("Tweet ", tweets[i].ID)
 					c.Println(tweets[i].User)
 					c.Println(tweets[i].Text)
 					c.Println(tweets[i].Date)

@@ -14,15 +14,27 @@ func InitializeService() {
 }
 
 // PublishTweet - Publicar tweet
-func PublishTweet(twt *domain.Tweet) error {
+func PublishTweet(twt *domain.Tweet) (int, error) {
 	if twt.User == "" {
-		return fmt.Errorf("user is required")
+		return 0, fmt.Errorf("user is required")
 	} else if twt.Text == "" {
-		return fmt.Errorf("text is required")
+		return 0, fmt.Errorf("text is required")
 	} else if len(twt.Text) > 140 {
-		return fmt.Errorf("text exceeds 140 characters")
+		return 0, fmt.Errorf("text exceeds 140 characters")
 	}
 	tweets = append(tweets, twt)
+	return twt.ID, nil
+}
+
+// GetTweetByID - Devuelve tweet segun su id
+func GetTweetByID(id int) *domain.Tweet {
+	if len(tweets) > 0 {
+		for i := 0; i < len(tweets); i++ {
+			if tweets[i].ID == id {
+				return tweets[i]
+			}
+		}
+	}
 	return nil
 }
 
@@ -46,5 +58,4 @@ func CleanTweet() {
 	} else {
 		tweets = nil
 	}
-
 }
