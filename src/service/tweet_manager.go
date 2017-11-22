@@ -1,18 +1,22 @@
 package service
 
-var tweet string
+import (
+	"github.com/tweeter/src/domain"
+)
+
+var tweet *domain.Tweet
 
 // PublishTweet - Publicar tweet
-func PublishTweet(tw string) {
-	tweet = tw
+func PublishTweet(twt *domain.Tweet) {
+	tweet = twt
 }
 
 // GetTweet - Devuelve tweet
-func GetTweet() string {
+func GetTweet() *domain.Tweet {
 	return tweet
 }
 
 // CleanTweet - Borra el ultimo tweet reemplazandolo por un texto vacio
 func CleanTweet() {
-	tweet = ""
+	tweet = nil
 }
