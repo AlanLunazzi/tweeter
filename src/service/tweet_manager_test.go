@@ -56,3 +56,41 @@ func TestTweetWithoutUserIsNotPublished(t *testing.T) {
 		t.Error("Expected error is user is required")
 	}
 }
+
+func TestTweetWithoutTextIsNotPublished(t *testing.T) {
+
+	// Initialization
+	var tweet *domain.Tweet
+	var text string
+	user := "pepe"
+
+	tweet = domain.NewTweet(user, text)
+
+	// Operation
+	var err error
+	err = service.PublishTweet(tweet)
+
+	// Validation
+	if err != nil && err.Error() != "text is required" {
+		t.Error("Expected error is text is required")
+	}
+}
+
+func TestTweetTextMustHaveLessThan140Chars(t *testing.T) {
+
+	// Initialization
+	var tweet *domain.Tweet
+	user := "pepe"
+	text := "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa."
+
+	tweet = domain.NewTweet(user, text)
+
+	// Operation
+	var err error
+	err = service.PublishTweet(tweet)
+
+	// Validation
+	if err != nil && err.Error() != "tweet must be less than 140 chars" {
+		t.Error("Expected error is tweet must be less than 140 chars")
+	}
+}

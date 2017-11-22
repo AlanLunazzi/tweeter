@@ -10,13 +10,15 @@ var tweet *domain.Tweet
 
 // PublishTweet - Publicar tweet
 func PublishTweet(twt *domain.Tweet) error {
-	var err error
 	if twt.User == "" {
-		err = fmt.Errorf("user is required")
-	} else {
-		tweet = twt
+		return fmt.Errorf("user is required")
+	} else if twt.Text == "" {
+		return fmt.Errorf("text is required")
+	} else if len(twt.Text) > 140 {
+		return fmt.Errorf("tweet must be less than 140 chars")
 	}
-	return err
+	tweet = twt
+	return nil
 }
 
 // GetTweet - Devuelve tweet
