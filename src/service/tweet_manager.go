@@ -6,7 +6,12 @@ import (
 	"github.com/tweeter/src/domain"
 )
 
-var tweet *domain.Tweet
+var tweets []*domain.Tweet
+
+// InitializeService - Asigna espacio en memoria a tweets
+func InitializeService() {
+	tweets = make([]*domain.Tweet, 0)
+}
 
 // PublishTweet - Publicar tweet
 func PublishTweet(twt *domain.Tweet) error {
@@ -15,18 +20,31 @@ func PublishTweet(twt *domain.Tweet) error {
 	} else if twt.Text == "" {
 		return fmt.Errorf("text is required")
 	} else if len(twt.Text) > 140 {
-		return fmt.Errorf("tweet must be less than 140 chars")
+		return fmt.Errorf("text exceeds 140 characters")
 	}
-	tweet = twt
+	tweets = append(tweets, twt)
 	return nil
 }
 
 // GetTweet - Devuelve tweet
 func GetTweet() *domain.Tweet {
-	return tweet
+	if len(tweets) > 0 {
+		return tweets[len(tweets)-1]
+	}
+	return nil
+}
+
+// GetTweets - Devuelve tweet
+func GetTweets() []*domain.Tweet {
+	return tweets
 }
 
 // CleanTweet - Borra el ultimo tweet reemplazandolo por un texto vacio
 func CleanTweet() {
-	tweet = nil
+	if len(tweets) > 1 {
+		tweets = tweets[0 : len(tweets)-1]
+	} else {
+		tweets = nil
+	}
+
 }
