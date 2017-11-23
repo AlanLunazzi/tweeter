@@ -240,6 +240,30 @@ func TestCanRetrieveTheTweetsSentByAnUser(t *testing.T) {
 
 }
 
+func TestUsersCanFollowUsers(t *testing.T) {
+
+	service.InitializeService()
+
+	user := "nportas"
+	anotherUser := "mercadolibre"
+	text := "This nportas first tweet"
+	secondText := "This mercadolibre second tweet"
+
+	tweet1 := domain.NewTweet(user, text)
+	tweet2 := domain.NewTweet(anotherUser, secondText)
+	service.PublishTweet(tweet1)
+	service.PublishTweet(tweet2)
+
+	service.Follow(user, anotherUser)
+
+	timeline := service.GetTimeline(user)
+	if len(timeline) != 2 {
+		t.Errorf("Expected tweets was 2 and get ", len(timeline))
+		return
+	}
+
+}
+
 func isValidTweet(t *testing.T, tweet *domain.Tweet, id int, user, text string) bool {
 
 	if tweet.ID != id {

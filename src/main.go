@@ -10,6 +10,8 @@ import (
 
 func main() {
 	shell := ishell.New()
+	service.InitializeService()
+
 	shell.SetPrompt("Tweeter >> ")
 	shell.Print("Type 'help' to know commands \n")
 	shell.AddCmd(&ishell.Cmd{
@@ -43,7 +45,8 @@ func main() {
 			if tweet == nil {
 				c.Println("No hay ultimo tweet")
 			} else {
-				c.Println(tweet.User)
+				c.Println("Tweet ", tweet.ID)
+				c.Println("User: ", tweet.User)
 				c.Println(tweet.Text)
 				c.Println(tweet.Date)
 			}
@@ -64,12 +67,54 @@ func main() {
 				if tweet == nil {
 					c.Println("No tweet with matching ID")
 				} else {
-					c.Println(tweet.User)
+					c.Println("Tweet ", tweet.ID)
+					c.Println("User: ", tweet.User)
 					c.Println(tweet.Text)
 					c.Println(tweet.Date)
 				}
 			} else {
 				c.Println("Invalid ID format")
+			}
+		},
+	})
+
+	shell.AddCmd(&ishell.Cmd{
+		Name: "showTweetsByUser",
+		Help: "Shows tweets from a user",
+		Func: func(c *ishell.Context) {
+			defer c.ShowPrompt(true)
+			c.Print("Insert username: ")
+			user := c.ReadLine()
+			tweets := service.GetTweetsByUser(user)
+			if tweets == nil {
+				c.Println("No tweet with matching user")
+			} else {
+				for _, tweet := range tweets {
+					c.Println("Tweet ", tweet.ID)
+					c.Println("User: ", tweet.User)
+					c.Println(tweet.Text)
+					c.Println(tweet.Date)
+				}
+			}
+		},
+	})
+
+	shell.AddCmd(&ishell.Cmd{
+		Name: "showUserTimeline",
+		Help: "Shows the timeline of a user",
+		Func: func(c *ishell.Context) {
+			defer c.ShowPrompt(true)
+			c.Print("Insert username: ")
+			user := c.ReadLine()
+			tweets := service.GetTimeline(user)
+			if tweets == nil {
+				c.Println("No tweets in timeline")
+			} else {
+				for _, tweet := range tweets {
+					c.Println("User: ", tweet.User)
+					c.Println(tweet.Text)
+					c.Println(tweet.Date)
+				}
 			}
 		},
 	})
@@ -88,6 +133,20 @@ func main() {
 	})
 
 	shell.AddCmd(&ishell.Cmd{
+		Name: "followUser",
+		Help: "Adds a user to the followed list",
+		Func: func(c *ishell.Context) {
+			defer c.ShowPrompt(true)
+			c.Print("Insert user: ")
+			user := c.ReadLine()
+			c.Print("Insert user to follow: ")
+			followed := c.ReadLine()
+			service.Follow(user, followed)
+			println("The user", user, "follows ", followed, "'s tweets")
+		},
+	})
+
+	shell.AddCmd(&ishell.Cmd{
 		Name: "showTweets",
 		Help: "Shows tweets",
 		Func: func(c *ishell.Context) {
@@ -98,7 +157,7 @@ func main() {
 			} else {
 				for i := 0; i < len(tweets); i++ {
 					c.Println("Tweet ", tweets[i].ID)
-					c.Println(tweets[i].User)
+					c.Println("User: ", tweets[i].User)
 					c.Println(tweets[i].Text)
 					c.Println(tweets[i].Date)
 				}
