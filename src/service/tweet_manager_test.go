@@ -20,12 +20,12 @@ func TestPublishedTweetIsSaved(t *testing.T) {
 	tweet = domain.NewTweet(user, text)
 
 	// Operation
-	service.PublishTweet(tweet)
+	id, _ := service.PublishTweet(tweet)
 
 	// Validation
 	publishedTweet := service.GetTweet()
 
-	isValidTweet(t, publishedTweet, user, text)
+	isValidTweet(t, publishedTweet, id, user, text)
 }
 
 func TestTweetWithoutUserIsNotPublished(t *testing.T) {
@@ -120,8 +120,8 @@ func TestCanPublishAndRetrieveMoreThanOneTweet(t *testing.T) {
 	secondTweet = domain.NewTweet(user, secondText)
 
 	// Operation
-	service.PublishTweet(tweet)
-	service.PublishTweet(secondTweet)
+	firstId, _ := service.PublishTweet(tweet)
+	secondId, _ := service.PublishTweet(secondTweet)
 
 	// Validation
 	publishedTweets := service.GetTweets()
@@ -135,30 +135,13 @@ func TestCanPublishAndRetrieveMoreThanOneTweet(t *testing.T) {
 	firstPublishedTweet := publishedTweets[0]
 	secondPublishedTweet := publishedTweets[1]
 
-	if !isValidTweet(t, firstPublishedTweet, user, text) {
+	if !isValidTweet(t, firstPublishedTweet, firstId, user, text) {
 		return
 	}
 
-	if !isValidTweet(t, secondPublishedTweet, user, secondText) {
+	if !isValidTweet(t, secondPublishedTweet, secondId, user, secondText) {
 		return
 	}
-
-}
-
-func isValidTweet(t *testing.T, tweet *domain.Tweet, user, text string) bool {
-
-	if tweet.User != user && tweet.Text != text {
-		t.Errorf("Expected tweet is %s: %s \nbut is %s: %s",
-			user, text, tweet.User, tweet.Text)
-		return false
-	}
-
-	if tweet.Date == nil {
-		t.Error("Expected date can't be nil")
-		return false
-	}
-
-	return true
 
 }
 
@@ -181,7 +164,7 @@ func TestCanRetrieveTweetById(t *testing.T) {
 	// Validation
 	publishedTweet := service.GetTweetByID(id)
 
-	isValidTweet(t, publishedTweet, user, text)
+	isValidTweet(t, publishedTweet, id, user, text)
 }
 
 func TestCanCountTheTweetsSentByAnUser(t *testing.T) {
@@ -211,5 +194,69 @@ func TestCanCountTheTweetsSentByAnUser(t *testing.T) {
 	if count != 2 {
 		t.Errorf("Expected count is 2 but was %d", count)
 	}
+
+}
+
+func TestCanRetrieveTheTweetsSentByAnUser(t *testing.T) {
+
+	// Initialization
+	service.InitializeService()
+
+	var tweet, secondTweet, thirdTweet *domain.Tweet
+
+	user := "grupoesfera"
+	anotherUser := "nick"
+	text := "This is my first tweet"
+	secondText := "This is my second tweet"
+
+	tweet = domain.NewTweet(user, text)
+	secondTweet = domain.NewTweet(user, secondText)
+	thirdTweet = domain.NewTweet(anotherUser, text)
+
+	firstId, _ := service.PublishTweet(tweet)
+	secondId, _ := service.PublishTweet(secondTweet)
+	service.PublishTweet(thirdTweet)
+
+	// Operation
+	tweets := service.GetTweetsByUser(user)
+
+	// Validation
+	if len(tweets) != 2 {
+
+		t.Errorf("Expected size is 2 but was %d", len(tweets))
+		return
+	}
+
+	firstPublishedTweet := tweets[0]
+	secondPublishedTweet := tweets[1]
+
+	if !isValidTweet(t, firstPublishedTweet, firstId, user, text) {
+		return
+	}
+
+	if !isValidTweet(t, secondPublishedTweet, secondId, user, secondText) {
+		return
+	}
+
+}
+
+func isValidTweet(t *testing.T, tweet *domain.Tweet, id int, user, text string) bool {
+
+	if tweet.ID != id {
+		t.Errorf("Expected id is %v but was %v", id, tweet.ID)
+	}
+
+	if tweet.User != user && tweet.Text != text {
+		t.Errorf("Expected tweet is %s: %s \nbut is %s: %s",
+			user, text, tweet.User, tweet.Text)
+		return false
+	}
+
+	if tweet.Date == nil {
+		t.Error("Expected date can't be nil")
+		return false
+	}
+
+	return true
 
 }

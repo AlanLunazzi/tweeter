@@ -6,11 +6,15 @@ import (
 	"github.com/tweeter/src/domain"
 )
 
-var tweets []*domain.Tweet
+//var tweets []*domain.Tweet
+var tweets map[int]*domain.Tweet
+var tweetsByUser map[string][]int
+var lastid int
 
 // InitializeService - Asigna espacio en memoria a tweets
 func InitializeService() {
-	tweets = make([]*domain.Tweet, 0)
+	tweets = make(map[int]*domain.Tweet)
+	tweetsByUser = make(map[string][]int)
 }
 
 // PublishTweet - Publicar tweet
@@ -22,53 +26,60 @@ func PublishTweet(twt *domain.Tweet) (int, error) {
 	} else if len(twt.Text) > 140 {
 		return 0, fmt.Errorf("text exceeds 140 characters")
 	}
-	tweets = append(tweets, twt)
+	lastid = twt.ID
+	tweets[twt.ID] = twt
+	elem, ok := tweetsByUser[twt.User]
+	if ok {
+		tweetsByUser[twt.User] = append(elem, twt.ID)
+	} else {
+		tweetsByUser[twt.User] = make([]int, 0)
+		tweetsByUser[twt.User] = append(tweetsByUser[twt.User], twt.ID)
+	}
 	return twt.ID, nil
 }
 
 // GetTweetByID - Devuelve tweet segun su id
 func GetTweetByID(id int) *domain.Tweet {
-	if len(tweets) > 0 {
-		for i := 0; i < len(tweets); i++ {
-			if tweets[i].ID == id {
-				return tweets[i]
-			}
+	elem, ok := tweets[id]
+	if ok {
+		return elem
+	}
+	return nil
+}
+
+// GetTweetsByUser - Devuelve tweets segun su usuario
+func GetTweetsByUser(user string) []*domain.Tweet {
+	elem, ok := tweetsByUser[user]
+	var userTweets []*domain.Tweet
+	if ok {
+		for _, id := range elem {
+			userTweets = append(userTweets, tweets[id])
 		}
+		return userTweets
 	}
 	return nil
 }
 
 // GetTweet - Devuelve tweet
 func GetTweet() *domain.Tweet {
-	if len(tweets) > 0 {
-		return tweets[len(tweets)-1]
-	}
-	return nil
+	return tweets[lastid]
 }
 
 // GetTweets - Devuelve tweet
 func GetTweets() []*domain.Tweet {
-	return tweets
+	var aux []*domain.Tweet
+	for _, tweet := range tweets {
+		aux = append(aux, tweet)
+	}
+	return aux
 }
 
 // CleanTweet - Borra el ultimo tweet reemplazandolo por un texto vacio
 func CleanTweet() {
-	if len(tweets) > 1 {
-		tweets = tweets[0 : len(tweets)-1]
-	} else {
-		tweets = nil
-	}
+	delete(tweets, lastid)
 }
 
 // CountTweetsByUser - Contar tweets por usuario
 func CountTweetsByUser(user string) int {
-	count := 0
-	if len(tweets) > 0 {
-		for i := 0; i < len(tweets); i++ {
-			if tweets[i].User == user {
-				count++
-			}
-		}
-	}
-	return count
+	return len(tweetsByUser[user])
 }
