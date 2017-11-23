@@ -10,7 +10,7 @@ import (
 func TestPublishedTweetIsSaved(t *testing.T) {
 
 	// Initialization
-	service.InitializeService()
+	tweetManager := service.NewTweetManager()
 
 	var tweet *domain.Tweet
 
@@ -20,10 +20,10 @@ func TestPublishedTweetIsSaved(t *testing.T) {
 	tweet = domain.NewTweet(user, text)
 
 	// Operation
-	id, _ := service.PublishTweet(tweet)
+	id, _ := tweetManager.PublishTweet(tweet)
 
 	// Validation
-	publishedTweet := service.GetTweet()
+	publishedTweet := tweetManager.GetTweet()
 
 	isValidTweet(t, publishedTweet, id, user, text)
 }
@@ -31,7 +31,7 @@ func TestPublishedTweetIsSaved(t *testing.T) {
 func TestTweetWithoutUserIsNotPublished(t *testing.T) {
 
 	// Initialization
-	service.InitializeService()
+	tweetManager := service.NewTweetManager()
 
 	var tweet *domain.Tweet
 
@@ -42,7 +42,7 @@ func TestTweetWithoutUserIsNotPublished(t *testing.T) {
 
 	// Operation
 	var err error
-	_, err = service.PublishTweet(tweet)
+	_, err = tweetManager.PublishTweet(tweet)
 
 	// Validation
 	if err != nil && err.Error() != "user is required" {
@@ -53,7 +53,7 @@ func TestTweetWithoutUserIsNotPublished(t *testing.T) {
 func TestTweetWithoutTextIsNotPublished(t *testing.T) {
 
 	// Initialization
-	service.InitializeService()
+	tweetManager := service.NewTweetManager()
 
 	var tweet *domain.Tweet
 
@@ -64,7 +64,7 @@ func TestTweetWithoutTextIsNotPublished(t *testing.T) {
 
 	// Operation
 	var err error
-	_, err = service.PublishTweet(tweet)
+	_, err = tweetManager.PublishTweet(tweet)
 
 	// Validation
 	if err == nil {
@@ -80,20 +80,20 @@ func TestTweetWithoutTextIsNotPublished(t *testing.T) {
 func TestTweetWhichExceeding140CharactersIsNotPublished(t *testing.T) {
 
 	// Initialization
-	service.InitializeService()
+	tweetManager := service.NewTweetManager()
 
 	var tweet *domain.Tweet
 
 	user := "grupoesfera"
 	text := `The Go project has grown considerably with over half a million users and community members 
-		all over the world. To date all community oriented activities have been organized by the community
-		with minimal involvement from the Go project. We greatly appreciate these efforts`
+	all over the world. To date all community oriented activities have been organized by the community
+	with minimal involvement from the Go project. We greatly appreciate these efforts`
 
 	tweet = domain.NewTweet(user, text)
 
 	// Operation
 	var err error
-	_, err = service.PublishTweet(tweet)
+	_, err = tweetManager.PublishTweet(tweet)
 
 	// Validation
 	if err == nil {
@@ -108,7 +108,7 @@ func TestTweetWhichExceeding140CharactersIsNotPublished(t *testing.T) {
 func TestCanPublishAndRetrieveMoreThanOneTweet(t *testing.T) {
 
 	// Initialization
-	service.InitializeService()
+	tweetManager := service.NewTweetManager()
 
 	var tweet, secondTweet *domain.Tweet
 
@@ -120,11 +120,11 @@ func TestCanPublishAndRetrieveMoreThanOneTweet(t *testing.T) {
 	secondTweet = domain.NewTweet(user, secondText)
 
 	// Operation
-	firstId, _ := service.PublishTweet(tweet)
-	secondId, _ := service.PublishTweet(secondTweet)
+	firstId, _ := tweetManager.PublishTweet(tweet)
+	secondId, _ := tweetManager.PublishTweet(secondTweet)
 
 	// Validation
-	publishedTweets := service.GetTweets()
+	publishedTweets := tweetManager.GetTweets()
 
 	if len(publishedTweets) != 2 {
 
@@ -148,7 +148,7 @@ func TestCanPublishAndRetrieveMoreThanOneTweet(t *testing.T) {
 func TestCanRetrieveTweetById(t *testing.T) {
 
 	// Initialization
-	service.InitializeService()
+	tweetManager := service.NewTweetManager()
 
 	var tweet *domain.Tweet
 	var id int
@@ -159,10 +159,10 @@ func TestCanRetrieveTweetById(t *testing.T) {
 	tweet = domain.NewTweet(user, text)
 
 	// Operation
-	id, _ = service.PublishTweet(tweet)
+	id, _ = tweetManager.PublishTweet(tweet)
 
 	// Validation
-	publishedTweet := service.GetTweetByID(id)
+	publishedTweet := tweetManager.GetTweetByID(id)
 
 	isValidTweet(t, publishedTweet, id, user, text)
 }
@@ -170,7 +170,7 @@ func TestCanRetrieveTweetById(t *testing.T) {
 func TestCanCountTheTweetsSentByAnUser(t *testing.T) {
 
 	// Initialization
-	service.InitializeService()
+	tweetManager := service.NewTweetManager()
 
 	var tweet, secondTweet, thirdTweet *domain.Tweet
 
@@ -183,12 +183,12 @@ func TestCanCountTheTweetsSentByAnUser(t *testing.T) {
 	secondTweet = domain.NewTweet(user, secondText)
 	thirdTweet = domain.NewTweet(anotherUser, text)
 
-	service.PublishTweet(tweet)
-	service.PublishTweet(secondTweet)
-	service.PublishTweet(thirdTweet)
+	tweetManager.PublishTweet(tweet)
+	tweetManager.PublishTweet(secondTweet)
+	tweetManager.PublishTweet(thirdTweet)
 
 	// Operation
-	count := service.CountTweetsByUser(user)
+	count := tweetManager.CountTweetsByUser(user)
 
 	// Validation
 	if count != 2 {
@@ -200,7 +200,7 @@ func TestCanCountTheTweetsSentByAnUser(t *testing.T) {
 func TestCanRetrieveTheTweetsSentByAnUser(t *testing.T) {
 
 	// Initialization
-	service.InitializeService()
+	tweetManager := service.NewTweetManager()
 
 	var tweet, secondTweet, thirdTweet *domain.Tweet
 
@@ -213,12 +213,12 @@ func TestCanRetrieveTheTweetsSentByAnUser(t *testing.T) {
 	secondTweet = domain.NewTweet(user, secondText)
 	thirdTweet = domain.NewTweet(anotherUser, text)
 
-	firstId, _ := service.PublishTweet(tweet)
-	secondId, _ := service.PublishTweet(secondTweet)
-	service.PublishTweet(thirdTweet)
+	firstId, _ := tweetManager.PublishTweet(tweet)
+	secondId, _ := tweetManager.PublishTweet(secondTweet)
+	tweetManager.PublishTweet(thirdTweet)
 
 	// Operation
-	tweets := service.GetTweetsByUser(user)
+	tweets := tweetManager.GetTweetsByUser(user)
 
 	// Validation
 	if len(tweets) != 2 {
@@ -235,30 +235,6 @@ func TestCanRetrieveTheTweetsSentByAnUser(t *testing.T) {
 	}
 
 	if !isValidTweet(t, secondPublishedTweet, secondId, user, secondText) {
-		return
-	}
-
-}
-
-func TestUsersCanFollowUsers(t *testing.T) {
-
-	service.InitializeService()
-
-	user := "nportas"
-	anotherUser := "mercadolibre"
-	text := "This nportas first tweet"
-	secondText := "This mercadolibre second tweet"
-
-	tweet1 := domain.NewTweet(user, text)
-	tweet2 := domain.NewTweet(anotherUser, secondText)
-	service.PublishTweet(tweet1)
-	service.PublishTweet(tweet2)
-
-	service.Follow(user, anotherUser)
-
-	timeline := service.GetTimeline(user)
-	if len(timeline) != 2 {
-		t.Errorf("Expected tweets was 2 and get ", len(timeline))
 		return
 	}
 

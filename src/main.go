@@ -10,7 +10,7 @@ import (
 
 func main() {
 	shell := ishell.New()
-	service.InitializeService()
+	tweetManager := service.NewTweetManager()
 
 	shell.SetPrompt("Tweeter >> ")
 	shell.Print("Type 'help' to know commands \n")
@@ -26,7 +26,7 @@ func main() {
 			c.Print("Write your tweet: ")
 			txt := c.ReadLine()
 			tweet := domain.NewTweet(usr, txt)
-			id, err = service.PublishTweet(tweet)
+			id, err = tweetManager.PublishTweet(tweet)
 			if err != nil {
 				c.Println("Error->", err)
 			} else {
@@ -41,7 +41,7 @@ func main() {
 		Help: "Shows a tweet",
 		Func: func(c *ishell.Context) {
 			defer c.ShowPrompt(true)
-			tweet := service.GetTweet()
+			tweet := tweetManager.GetTweet()
 			if tweet == nil {
 				c.Println("No hay ultimo tweet")
 			} else {
@@ -63,7 +63,7 @@ func main() {
 			var err error
 			id, err = strconv.Atoi(c.ReadLine())
 			if err == nil {
-				tweet := service.GetTweetByID(id)
+				tweet := tweetManager.GetTweetByID(id)
 				if tweet == nil {
 					c.Println("No tweet with matching ID")
 				} else {
@@ -85,7 +85,7 @@ func main() {
 			defer c.ShowPrompt(true)
 			c.Print("Insert username: ")
 			user := c.ReadLine()
-			tweets := service.GetTweetsByUser(user)
+			tweets := tweetManager.GetTweetsByUser(user)
 			if tweets == nil {
 				c.Println("No tweet with matching user")
 			} else {
@@ -106,7 +106,7 @@ func main() {
 			defer c.ShowPrompt(true)
 			c.Print("Insert username: ")
 			user := c.ReadLine()
-			tweets := service.GetTimeline(user)
+			tweets := tweetManager.GetTimeline(user)
 			if tweets == nil {
 				c.Println("No tweets in timeline")
 			} else {
@@ -127,7 +127,7 @@ func main() {
 			var user string
 			c.Print("Insert user: ")
 			user = c.ReadLine()
-			count := service.CountTweetsByUser(user)
+			count := tweetManager.CountTweetsByUser(user)
 			println("The user", user, "has ", count, "tweets")
 		},
 	})
@@ -141,7 +141,7 @@ func main() {
 			user := c.ReadLine()
 			c.Print("Insert user to follow: ")
 			followed := c.ReadLine()
-			service.Follow(user, followed)
+			tweetManager.Follow(user, followed)
 			println("The user", user, "follows ", followed, "'s tweets")
 		},
 	})
@@ -151,7 +151,7 @@ func main() {
 		Help: "Shows tweets",
 		Func: func(c *ishell.Context) {
 			defer c.ShowPrompt(true)
-			tweets := service.GetTweets()
+			tweets := tweetManager.GetTweets()
 			if tweets == nil {
 				c.Println("No hay ningun tweet")
 			} else {
@@ -170,7 +170,7 @@ func main() {
 		Help: "Cleans the last tweet",
 		Func: func(c *ishell.Context) {
 			defer c.ShowPrompt(true)
-			service.CleanTweet()
+			tweetManager.CleanTweet()
 
 			c.Println("Ultimo tweet eliminado")
 		},

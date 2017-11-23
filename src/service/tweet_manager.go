@@ -6,21 +6,27 @@ import (
 	"github.com/tweeter/src/domain"
 )
 
-//var tweets []*domain.Tweet
-var tweets map[int]*domain.Tweet
-var tweetsByUser map[string][]int
-var followersUser map[string][]string
-var lastid int
+// TweetManager - Te maneja los tweets papa
+type TweetManager struct {
+	//var tweets []*domain.Tweet
+	tweets        map[int]*domain.Tweet
+	tweetsByUser  map[string][]int
+	followersUser map[string][]string
+	lastid        int
+}
 
-// InitializeService - Asigna espacio en memoria a tweets
-func InitializeService() {
-	tweets = make(map[int]*domain.Tweet)
-	tweetsByUser = make(map[string][]int)
-	followersUser = make(map[string][]string)
+// NewTweetManager - Asigna espacio en memoria a tweets
+func NewTweetManager() *TweetManager {
+	var tm TweetManager
+	tm.lastid = 1
+	tm.tweets = make(map[int]*domain.Tweet)
+	tm.tweetsByUser = make(map[string][]int)
+	tm.followersUser = make(map[string][]string)
+	return &tm
 }
 
 // PublishTweet - Publicar tweet
-func PublishTweet(twt *domain.Tweet) (int, error) {
+func (tm TweetManager) PublishTweet(twt *domain.Tweet) (int, error) {
 	if twt.User == "" {
 		return 0, fmt.Errorf("user is required")
 	} else if twt.Text == "" {
@@ -28,21 +34,15 @@ func PublishTweet(twt *domain.Tweet) (int, error) {
 	} else if len(twt.Text) > 140 {
 		return 0, fmt.Errorf("text exceeds 140 characters")
 	}
-	lastid = twt.ID
-	tweets[twt.ID] = twt
-	//elem, ok := tweetsByUser[twt.User]
-	//if ok {
-	tweetsByUser[twt.User] = append(tweetsByUser[twt.User], twt.ID)
-	/*} else {
-		tweetsByUser[twt.User] = make([]int, 0)
-		tweetsByUser[twt.User] = append(tweetsByUser[twt.User], twt.ID)
-	}*/
+	tm.lastid = twt.ID
+	tm.tweets[twt.ID] = twt
+	tm.tweetsByUser[twt.User] = append(tm.tweetsByUser[twt.User], twt.ID)
 	return twt.ID, nil
 }
 
 // GetTweetByID - Devuelve tweet segun su id
-func GetTweetByID(id int) *domain.Tweet {
-	elem, ok := tweets[id]
+func (tm TweetManager) GetTweetByID(id int) *domain.Tweet {
+	elem, ok := tm.tweets[id]
 	if ok {
 		return elem
 	}
@@ -50,12 +50,12 @@ func GetTweetByID(id int) *domain.Tweet {
 }
 
 // GetTweetsByUser - Devuelve tweets segun su usuario
-func GetTweetsByUser(user string) []*domain.Tweet {
-	elem, ok := tweetsByUser[user]
+func (tm TweetManager) GetTweetsByUser(user string) []*domain.Tweet {
+	elem, ok := tm.tweetsByUser[user]
 	var userTweets []*domain.Tweet
 	if ok {
 		for _, id := range elem {
-			userTweets = append(userTweets, tweets[id])
+			userTweets = append(userTweets, tm.tweets[id])
 		}
 		return userTweets
 	}
@@ -63,47 +63,47 @@ func GetTweetsByUser(user string) []*domain.Tweet {
 }
 
 // GetTweet - Devuelve tweet
-func GetTweet() *domain.Tweet {
-	return tweets[lastid]
+func (tm TweetManager) GetTweet() *domain.Tweet {
+	return tm.tweets[tm.lastid]
 }
 
 // GetTweets - Devuelve tweet
-func GetTweets() []*domain.Tweet {
+func (tm TweetManager) GetTweets() []*domain.Tweet {
 	var aux []*domain.Tweet
-	for _, tweet := range tweets {
+	for _, tweet := range tm.tweets {
 		aux = append(aux, tweet)
 	}
 	return aux
 }
 
 // CleanTweet - Borra el ultimo tweet reemplazandolo por un texto vacio
-func CleanTweet() {
-	length := len(tweetsByUser[tweets[lastid].User])
+func (tm TweetManager) CleanTweet() {
+	length := len(tm.tweetsByUser[tm.tweets[tm.lastid].User])
 	if length == 1 {
-		tweetsByUser[tweets[lastid].User] = nil
+		tm.tweetsByUser[tm.tweets[tm.lastid].User] = nil
 	} else {
-		tweetsByUser[tweets[lastid].User] = tweetsByUser[tweets[lastid].User][:(length - 1)]
+		tm.tweetsByUser[tm.tweets[tm.lastid].User] = tm.tweetsByUser[tm.tweets[tm.lastid].User][:(length - 1)]
 	}
-	delete(tweets, lastid)
-	lastid--
+	delete(tm.tweets, tm.lastid)
+	tm.lastid--
 }
 
 // CountTweetsByUser - Contar tweets por usuario
-func CountTweetsByUser(user string) int {
-	return len(tweetsByUser[user])
+func (tm TweetManager) CountTweetsByUser(user string) int {
+	return len(tm.tweetsByUser[user])
 }
 
 // Follow - Agrega a un usuario otro usuario para seguirlo
-func Follow(user string, followed string) {
-	followersUser[user] = append(followersUser[user], followed)
+func (tm TweetManager) Follow(user string, followed string) {
+	tm.followersUser[user] = append(tm.followersUser[user], followed)
 }
 
 // GetTimeline -
-func GetTimeline(user string) []*domain.Tweet {
+func (tm TweetManager) GetTimeline(user string) []*domain.Tweet {
 	var timeline []*domain.Tweet
-	timeline = append(timeline, GetTweetsByUser(user)...)
-	for _, usr := range followersUser[user] {
-		timeline = append(timeline, GetTweetsByUser(usr)...)
+	timeline = append(timeline, tm.GetTweetsByUser(user)...)
+	for _, usr := range tm.followersUser[user] {
+		timeline = append(timeline, tm.GetTweetsByUser(usr)...)
 	}
 	return timeline
 }
