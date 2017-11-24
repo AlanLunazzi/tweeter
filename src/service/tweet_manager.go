@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/tweeter/src/domain"
 )
@@ -106,4 +107,42 @@ func (tm TweetManager) GetTimeline(user string) []*domain.Tweet {
 		timeline = append(timeline, tm.GetTweetsByUser(usr)...)
 	}
 	return timeline
+}
+
+// GetTrendingTopics - Devuelve un arrays de las dos strings mas repetidas
+func (tm TweetManager) GetTrendingTopics() [2]string {
+	var allTweets string
+	var primero, segundo int
+	var keyPrimero, keySegundo string
+	for _, tweet := range tm.tweets {
+		allTweets = allTweets + " " + tweet.Text
+	}
+	allTweets = strings.ToLower(allTweets)
+	mapa := wordCount(allTweets)
+	for key, elem := range mapa {
+		if elem > primero {
+			segundo = primero
+			primero = elem
+			keySegundo = keyPrimero
+			keyPrimero = key
+		} else if elem > segundo {
+			segundo = elem
+			keySegundo = key
+		}
+	}
+	return [2]string{keyPrimero, keySegundo}
+}
+
+func wordCount(s string) map[string]int {
+	var m = make(map[string]int)
+	wordsArray := strings.Split(s, " ")
+	for _, word := range wordsArray {
+		elem, ok := m[word]
+		if ok {
+			m[word] = elem + 1
+		} else {
+			m[word] = 1
+		}
+	}
+	return m
 }

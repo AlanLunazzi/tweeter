@@ -176,5 +176,20 @@ func main() {
 		},
 	})
 
+	shell.AddCmd(&ishell.Cmd{
+		Name: "showTrendingTopics",
+		Help: "Show the 2 most used words in Tweeter",
+		Func: func(c *ishell.Context) {
+			defer c.ShowPrompt(true)
+			trending := tweetManager.GetTrendingTopics()
+			if trending[0] == "" {
+				c.Println("No hay trending topics")
+			} else {
+				for i := 0; i < len(trending); i++ {
+					c.Println("#" + trending[i])
+				}
+			}
+		},
+	})
 	shell.Run()
 }

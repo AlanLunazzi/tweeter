@@ -240,6 +240,49 @@ func TestCanRetrieveTheTweetsSentByAnUser(t *testing.T) {
 
 }
 
+/*
+Cosas a hacer:
+GetTrendingTopics []string (devuelve las 2 palabras mas populares)
+SendDirectMessage(user, userto, msg)
+GetUnreadedDirectMessages(user string)
+GetAllDirectMessages(user string)
+
+
+func WordCount(s string) map[string]int {
+	var m = make(map[string]int)
+	words_array := strings.Split(s," ")
+	for _,word := range words_array {
+		elem, ok := m[word]
+		if ok {
+			m[word] = elem + 1
+		} else{
+			m[word] = 1
+		}
+	}
+	return m
+}
+
+*/
+
+func TestCanSeeTrendingTopics(t *testing.T) {
+	tweetManager := service.NewTweetManager()
+	user := "grupoesfera"
+	anotherUser := "nick"
+	text := "meLi amazon Google facebook"
+	secondText := "meli google Meli"
+
+	tweet := domain.NewTweet(user, text)
+	secondTweet := domain.NewTweet(anotherUser, secondText)
+
+	tweetManager.PublishTweet(tweet)
+	tweetManager.PublishTweet(secondTweet)
+
+	trending := tweetManager.GetTrendingTopics()
+	if trending[0] != "meli" && trending[1] != "google" {
+		t.Errorf("Expected strings was meli and google, received %s and %s", trending[0], trending[1])
+	}
+}
+
 func isValidTweet(t *testing.T, tweet *domain.Tweet, id int, user, text string) bool {
 
 	if tweet.ID != id {
