@@ -20,12 +20,23 @@ func main() {
 		Func: func(c *ishell.Context) {
 			var err error
 			var id int
+			var tweet domain.Tweet
 			defer c.ShowPrompt(true)
 			c.Print("Enter your username: ")
 			usr := c.ReadLine()
 			c.Print("Write your tweet: ")
 			txt := c.ReadLine()
-			tweet := domain.NewTweet(usr, txt)
+			c.Print("Enter the type of tweet you want to publish: (t - text i - image)")
+			tt := c.ReadLine()
+			if tt == "t" {
+				tweet = domain.NewTextTweet(usr, txt)
+			} else if tt == "i" {
+				c.Print("Enter your url: ")
+				url := c.ReadLine()
+				tweet = domain.NewImageTweet(usr, txt, url)
+			} else {
+				return
+			}
 			id, err = tweetManager.PublishTweet(tweet)
 			if err != nil {
 				c.Println("Error->", err)
@@ -45,10 +56,7 @@ func main() {
 			if tweet == nil {
 				c.Println("No hay ultimo tweet")
 			} else {
-				c.Println("Tweet ", tweet.ID)
-				c.Println("User: ", tweet.User)
-				c.Println(tweet.Text)
-				c.Println(tweet.Date)
+				c.Println(tweet)
 			}
 		},
 	})
@@ -67,10 +75,7 @@ func main() {
 				if tweet == nil {
 					c.Println("No tweet with matching ID")
 				} else {
-					c.Println("Tweet ", tweet.ID)
-					c.Println("User: ", tweet.User)
-					c.Println(tweet.Text)
-					c.Println(tweet.Date)
+					c.Println(tweet)
 				}
 			} else {
 				c.Println("Invalid ID format")
@@ -90,10 +95,7 @@ func main() {
 				c.Println("No tweet with matching user")
 			} else {
 				for _, tweet := range tweets {
-					c.Println("Tweet ", tweet.ID)
-					c.Println("User: ", tweet.User)
-					c.Println(tweet.Text)
-					c.Println(tweet.Date)
+					c.Println(tweet)
 				}
 			}
 		},
@@ -111,9 +113,7 @@ func main() {
 				c.Println("No tweets in timeline")
 			} else {
 				for _, tweet := range tweets {
-					c.Println("User: ", tweet.User)
-					c.Println(tweet.Text)
-					c.Println(tweet.Date)
+					c.Println(tweet)
 				}
 			}
 		},
@@ -156,10 +156,7 @@ func main() {
 				c.Println("No hay ningun tweet")
 			} else {
 				for i := 0; i < len(tweets); i++ {
-					c.Println("Tweet ", tweets[i].ID)
-					c.Println("User: ", tweets[i].User)
-					c.Println(tweets[i].Text)
-					c.Println(tweets[i].Date)
+					c.Println(tweets[i])
 				}
 			}
 		},

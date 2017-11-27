@@ -67,6 +67,9 @@ func generateIDTweet() int {
 func (t *TextTweet) String() string {
 	return t.PrintableTweet()
 }
+func (t *ImageTweet) String() string {
+	return t.PrintableTweet()
+}
 
 // PrintableTweet -
 func (t *TextTweet) PrintableTweet() string {
