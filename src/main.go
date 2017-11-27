@@ -26,7 +26,7 @@ func main() {
 			usr := c.ReadLine()
 			c.Print("Write your tweet: ")
 			txt := c.ReadLine()
-			c.Print("Enter the type of tweet you want to publish: (t - text i - image)")
+			c.Println("Enter the type of tweet you want to publish: (t - text i - image)")
 			tt := c.ReadLine()
 			if tt == "t" {
 				tweet = domain.NewTextTweet(usr, txt)

@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -73,12 +74,16 @@ func (t *ImageTweet) String() string {
 
 // PrintableTweet -
 func (t *TextTweet) PrintableTweet() string {
-	return "@" + t.User + ": " + t.Text
+	s := fmt.Sprintf("@ %v %v Fecha: %d-%02d-%02d Hora: %02d:%02d:%02d", t.User, t.Text, t.Date.Year(), t.Date.Month(), t.Date.Day(),
+		t.Date.Hour(), t.Date.Minute(), t.Date.Second())
+	return s
 }
 
 // PrintableTweet -
 func (t *ImageTweet) PrintableTweet() string {
-	return "@" + t.User + ": " + t.Text + " " + t.Image
+	s := fmt.Sprintf("@ %v %v Fecha: %d-%02d-%02d Hora: %02d:%02d:%02d", t.User, t.Text, t.Date.Year(), t.Date.Month(), t.Date.Day(),
+		t.Date.Hour(), t.Date.Minute(), t.Date.Second())
+	return s
 }
 
 // GetUser -
